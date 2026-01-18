@@ -2,6 +2,20 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Set canvas size based on screen width
+function setCanvasSize() {
+    const maxWidth = Math.min(800, window.innerWidth - 40);
+    const aspectRatio = 3/4; // 800x600 ratio
+    canvas.width = maxWidth;
+    canvas.height = maxWidth * aspectRatio;
+}
+
+setCanvasSize();
+window.addEventListener('resize', () => {
+    setCanvasSize();
+    drawInitialScreen();
+});
+
 // Load Images
 const mathewImage = new Image();
 mathewImage.src = 'images/Mathew.png';
