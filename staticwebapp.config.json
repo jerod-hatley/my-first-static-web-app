@@ -1,0 +1,14 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  },
+  "routes": [],
+  "mimeTypes": {
+    ".json": "application/json",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".css": "text/css",
+    ".js": "application/javascript",
+    ".html": "text/html"
+  }
+}
