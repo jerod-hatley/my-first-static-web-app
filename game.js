@@ -13,6 +13,7 @@ function setCanvasSize() {
 setCanvasSize();
 window.addEventListener('resize', () => {
     setCanvasSize();
+    calculateHexSize();
     drawInitialScreen();
 });
 
@@ -43,15 +44,35 @@ let gameState = {
     level: 1
 };
 
-// Hexagon Settings (flat-top)
-const hexRadius = 30;
-const hexWidth = Math.sqrt(3) * hexRadius;
-const hexHeight = 2 * hexRadius;
-let horizontalSpacing = .90; // No horizontal spacing
-let verticalSpacing = 1.18; // Space between flat tops/bottoms to prevent overlap
-let offsetMultiplier = 0.5; // How much to offset alternate rows
+// Hexagon Settings (flat-top) - will be calculated based on canvas size
+let hexRadius = 30;
+let hexWidth = Math.sqrt(3) * hexRadius;
+let hexHeight = 2 * hexRadius;
+let horizontalSpacing = .90;
+let verticalSpacing = 1.18;
+let offsetMultiplier = 0.5;
 const gridCols = 12;
 const gridRows = 10;
+let gridOffsetX = 150;
+let gridOffsetY = 50;
+
+// Calculate hex size based on canvas dimensions
+function calculateHexSize() {
+    const availableWidth = canvas.width - 40;
+    const availableHeight = canvas.height - 40;
+    
+    // Calculate hex radius that fits the grid
+    const radiusForWidth = availableWidth / (gridCols * Math.sqrt(3) * horizontalSpacing + 1);
+    const radiusForHeight = availableHeight / (gridRows * 1.5 * verticalSpacing + 1);
+    
+    hexRadius = Math.min(radiusForWidth, radiusForHeight, 30);
+    hexWidth = Math.sqrt(3) * hexRadius;
+    hexHeight = 2 * hexRadius;
+    
+    // Center the grid
+    gridOffsetX = (canvas.width - (gridCols * hexWidth * horizontalSpacing)) / 2;
+    gridOffsetY = (canvas.height - (gridRows * hexHeight * 0.75 * verticalSpacing)) / 2;
+}
 
 // Random starting position
 const startCol = Math.floor(Math.random() * gridCols);
@@ -109,8 +130,8 @@ function createHexGrid() {
 
 // Convert grid coordinates to pixel coordinates (flat-top, columns offset vertically)
 function hexToPixel(col, row) {
-    const x = col * hexWidth * horizontalSpacing + 150;
-    const y = row * hexHeight * 0.75 * verticalSpacing + (col % 2) * (hexHeight * 0.75 * verticalSpacing * offsetMultiplier) + 50;
+    const x = col * hexWidth * horizontalSpacing + gridOffsetX;
+    const y = row * hexHeight * 0.75 * verticalSpacing + (col % 2) * (hexHeight * 0.75 * verticalSpacing * offsetMultiplier) + gridOffsetY;
     return { x, y };
 }
 
@@ -428,6 +449,7 @@ document.getElementById('pauseBtn').addEventListener('click', togglePause);
 
 // Initial Draw
 function drawInitialScreen() {
+    calculateHexSize();
     drawBackground();
     createHexGrid();
     drawHexGrid();
@@ -435,16 +457,18 @@ function drawInitialScreen() {
     drawPlayer();
 
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.fillRect(canvas.width / 2 - 200, canvas.height / 2 - 60, 400, 120);
+    const boxWidth = Math.min(400, canvas.width - 40);
+    const boxHeight = 120;
+    ctx.fillRect(canvas.width / 2 - boxWidth/2, canvas.height / 2 - boxHeight/2, boxWidth, boxHeight);
     
     ctx.fillStyle = '#FFF';
-    ctx.font = '32px Arial';
+    ctx.font = `${Math.min(32, canvas.width / 15)}px Arial`;
     ctx.textAlign = 'center';
     ctx.fillText('Click or tap to move!', canvas.width / 2, canvas.height / 2);
     
-    ctx.font = '16px Arial';
+    ctx.font = `${Math.min(16, canvas.width / 25)}px Arial`;
     ctx.fillText('Click on any hex tile to move there', canvas.width / 2, canvas.height / 2 + 30);
-    ctx.fillText('Collect gold coins!', canvas.width / 2, canvas.height / 2 + 50);
+    ctx.fillText('Avoid the lava!', canvas.width / 2, canvas.height / 2 + 50);
 }
 
 // Start render loop immediately
