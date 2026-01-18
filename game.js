@@ -76,7 +76,7 @@ function calculateHexSize() {
     
     // Center the grid perfectly then shift down and right
     gridOffsetX = (canvas.width - gridWidth) / 2 + 20;
-    gridOffsetY = ((canvas.height - controlsHeight) - gridHeight) / 2 + 20;
+    gridOffsetY = ((canvas.height - controlsHeight) - gridHeight) / 2 + 40;
 }
 
 // Random starting position
