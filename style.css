@@ -12,15 +12,19 @@ body {
     align-items: center;
     min-height: 100vh;
     color: #333;
-    padding: 10px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
 .game-container {
     max-width: 100%;
     width: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 }
 
 h1 {

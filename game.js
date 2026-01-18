@@ -4,10 +4,9 @@ const ctx = canvas.getContext('2d');
 
 // Set canvas size based on screen width
 function setCanvasSize() {
-    const maxWidth = Math.min(800, window.innerWidth - 40);
-    const aspectRatio = 3/4; // 800x600 ratio
+    const maxWidth = Math.min(400, window.innerWidth);
     canvas.width = maxWidth;
-    canvas.height = maxWidth * aspectRatio;
+    canvas.height = 700;
 }
 
 setCanvasSize();
@@ -52,26 +51,32 @@ let horizontalSpacing = .90;
 let verticalSpacing = 1.18;
 let offsetMultiplier = 0.5;
 const gridCols = 12;
-const gridRows = 10;
+const gridRows = 20;
 let gridOffsetX = 150;
 let gridOffsetY = 50;
 
 // Calculate hex size based on canvas dimensions
 function calculateHexSize() {
-    const availableWidth = canvas.width - 40;
-    const availableHeight = canvas.height - 40;
+    const controlsHeight = 60; // Reduced space for controls
+    const padding = 10;
+    const availableWidth = canvas.width - (padding * 2);
+    const availableHeight = canvas.height - controlsHeight - (padding * 2);
     
     // Calculate hex radius that fits the grid
-    const radiusForWidth = availableWidth / (gridCols * Math.sqrt(3) * horizontalSpacing + 1);
-    const radiusForHeight = availableHeight / (gridRows * 1.5 * verticalSpacing + 1);
+    const radiusForWidth = availableWidth / (gridCols * Math.sqrt(3) * horizontalSpacing);
+    const radiusForHeight = availableHeight / ((gridRows - 1) * 1.5 * verticalSpacing + 2);
     
-    hexRadius = Math.min(radiusForWidth, radiusForHeight, 30);
+    hexRadius = Math.min(radiusForWidth, radiusForHeight);
     hexWidth = Math.sqrt(3) * hexRadius;
     hexHeight = 2 * hexRadius;
     
-    // Center the grid
-    gridOffsetX = (canvas.width - (gridCols * hexWidth * horizontalSpacing)) / 2;
-    gridOffsetY = (canvas.height - (gridRows * hexHeight * 0.75 * verticalSpacing)) / 2;
+    // Calculate exact grid dimensions
+    const gridWidth = (gridCols - 1) * hexWidth * horizontalSpacing + hexWidth;
+    const gridHeight = (gridRows - 1) * hexHeight * 0.75 * verticalSpacing + hexHeight;
+    
+    // Center the grid perfectly
+    gridOffsetX = (canvas.width - gridWidth) / 2;
+    gridOffsetY = ((canvas.height - controlsHeight) - gridHeight) / 2;
 }
 
 // Random starting position
@@ -142,8 +147,8 @@ const moveDelay = 200;
 
 // Convert pixel coordinates to hex grid coordinates (flat-top, columns offset)
 function pixelToHex(x, y) {
-    x -= 150;
-    y -= 50;
+    x -= gridOffsetX;
+    y -= gridOffsetY;
     
     const col = Math.round(x / (hexWidth * horizontalSpacing));
     const rowOffset = (col % 2) * (hexHeight * 0.75 * verticalSpacing * offsetMultiplier);
