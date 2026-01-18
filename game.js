@@ -348,6 +348,21 @@ function showQuestion(difficulty = 'medium') {
     currentDifficulty = difficulty;
     wrongAnswerCount = 0;
     currentQuestion = generateQuestion(currentDifficulty);
+    
+    // Update question title based on subject
+    const subjectTitles = {
+        'addition': '➕ Addition Question!',
+        'subtraction': '➖ Subtraction Question!',
+        'multiplication': '✖️ Multiplication Question!',
+        'division': '➗ Division Question!',
+        'math-mixed': '🔢 Math Question!',
+        'reading': '📖 Reading Question!',
+        'science': '🔬 Science Question!',
+        'vocabulary': '💬 Vocabulary Question!',
+        'music': '🎵 Music Question!'
+    };
+    document.getElementById('questionTitle').textContent = subjectTitles[gameState.subject] || 'Question!';
+    
     document.getElementById('questionText').textContent = currentQuestion.text;
     document.getElementById('answerInput').value = '';
     
@@ -584,6 +599,11 @@ function createHexGrid() {
         player.gridY = newRow;
         player.targetGridX = newCol;
         player.targetGridY = newRow;
+    }
+    
+    // Ensure princess doesn't spawn on lava or question tile
+    if (hexGrid[princess.gridY][princess.gridX].type === 'lava' || hexGrid[princess.gridY][princess.gridX].type === 'question') {
+        hexGrid[princess.gridY][princess.gridX].type = 'normal';
     }
 }
 
