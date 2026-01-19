@@ -153,11 +153,14 @@ button:active {
     z-index: 2000;
     justify-content: center;
     align-items: center;
+    overflow-y: auto;
 }
 
 .title-content {
     text-align: center;
     padding: 20px;
+    position: relative;
+    z-index: 1;
 }
 
 .game-title {
@@ -175,7 +178,7 @@ button:active {
     justify-content: center;
     align-items: center;
     gap: 40px;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 .title-character {
@@ -197,6 +200,72 @@ button:active {
     50% {
         transform: translateY(-20px);
     }
+}
+
+.game-settings {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    z-index: 10;
+}
+
+.setting-group {
+    margin-bottom: 25px;
+}
+
+.setting-group:last-child {
+    margin-bottom: 0;
+}
+
+.setting-group label {
+    display: block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.setting-select {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 1.2em;
+    border: 3px solid #667eea;
+    border-radius: 12px;
+    background: white;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.setting-select option {
+    font-size: 1.2em;
+    padding: 10px;
+}
+
+.setting-select:hover {
+    border-color: #764ba2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.setting-select:focus {
+    outline: none;
+    border-color: #764ba2;
+    box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.25);
+    transform: translateY(-2px);
 }
 
 .start-button {

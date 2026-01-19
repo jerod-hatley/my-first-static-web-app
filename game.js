@@ -50,7 +50,9 @@ let gameState = {
     isPaused: false,
     score: 0,
     lives: 3,
-    level: 1
+    level: 1,
+    gradeLevel: '1',
+    subject: 'math-mixed'
 };
 
 // Question System
@@ -60,62 +62,285 @@ let currentDifficulty = 'medium'; // Track difficulty: easy, medium, hard
 let wrongAnswerCount = 0;
 
 function generateQuestion(difficulty = 'medium') {
-    const operations = [
-        { type: 'add', op: '+' },
-        { type: 'subtract', op: '-' },
-        { type: 'multiply', op: '×' }
-    ];
+    const gradeLevel = gameState.gradeLevel;
+    const subject = gameState.subject;
     
-    const operation = operations[Math.floor(Math.random() * operations.length)];
+    // Handle non-math subjects
+    if (subject === 'reading') {
+        return generateReadingQuestion(gradeLevel, difficulty);
+    } else if (subject === 'science') {
+        return generateScienceQuestion(gradeLevel, difficulty);
+    } else if (subject === 'vocabulary') {
+        return generateVocabularyQuestion(gradeLevel, difficulty);
+    } else if (subject === 'music') {
+        return generateMusicQuestion(gradeLevel, difficulty);
+    }
+    
+    // Math questions
+    let availableOperations = [];
+    
+    if (subject === 'addition' || subject === 'math-mixed') {
+        availableOperations.push({ type: 'add', op: '+' });
+    }
+    if (subject === 'subtraction' || subject === 'math-mixed') {
+        availableOperations.push({ type: 'subtract', op: '-' });
+    }
+    if (subject === 'multiplication' || subject === 'math-mixed') {
+        if (gradeLevel !== 'K' && gradeLevel !== '1') {
+            availableOperations.push({ type: 'multiply', op: '×' });
+        }
+    }
+    if (subject === 'division' || subject === 'math-mixed') {
+        if (parseInt(gradeLevel) >= 3) {
+            availableOperations.push({ type: 'divide', op: '÷' });
+        }
+    }
+    
+    if (availableOperations.length === 0) {
+        availableOperations.push({ type: 'add', op: '+' });
+    }
+    
+    const operation = availableOperations[Math.floor(Math.random() * availableOperations.length)];
     let num1, num2, answer;
     
+    const ranges = {
+        'K': { min: 1, max: 5, multMax: 2 },
+        '1': { min: 1, max: 10, multMax: 5 },
+        '2': { min: 1, max: 20, multMax: 10 },
+        '3': { min: 1, max: 50, multMax: 12 },
+        '4': { min: 1, max: 100, multMax: 12 },
+        '5': { min: 1, max: 200, multMax: 15 }
+    };
+    
+    const range = ranges[gradeLevel] || ranges['1'];
+    let min = range.min;
+    let max = range.max;
+    let multMax = range.multMax;
+    
     if (difficulty === 'easy') {
-        // Easy: small numbers, addition/subtraction only
-        if (operation.type === 'add') {
-            num1 = Math.floor(Math.random() * 5) + 1;
-            num2 = Math.floor(Math.random() * 5) + 1;
-            answer = num1 + num2;
-        } else {
-            num1 = Math.floor(Math.random() * 5) + 3;
-            num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
-            answer = num1 - num2;
+        max = Math.ceil(max * 0.5);
+        multMax = Math.ceil(multMax * 0.6);
+    } else if (difficulty === 'hard') {
+        max = Math.ceil(max * 1.3);
+        multMax = Math.ceil(multMax * 1.2);
+    }
+    
+    if (operation.type === 'add') {
+        num1 = Math.floor(Math.random() * max) + min;
+        num2 = Math.floor(Math.random() * max) + min;
+        answer = num1 + num2;
+    } else if (operation.type === 'subtract') {
+        num1 = Math.floor(Math.random() * max) + min;
+        num2 = Math.floor(Math.random() * Math.min(num1, max)) + min;
+        if (num2 > num1) {
+            [num1, num2] = [num2, num1];
         }
-    } else if (difficulty === 'medium') {
-        // Medium: normal range
-        if (operation.type === 'add') {
-            num1 = Math.floor(Math.random() * 10) + 1;
-            num2 = Math.floor(Math.random() * 10) + 1;
-            answer = num1 + num2;
-        } else if (operation.type === 'subtract') {
-            num1 = Math.floor(Math.random() * 10) + 5;
-            num2 = Math.floor(Math.random() * num1) + 1;
-            answer = num1 - num2;
-        } else {
-            num1 = Math.floor(Math.random() * 5) + 1;
-            num2 = Math.floor(Math.random() * 5) + 1;
-            answer = num1 * num2;
-        }
-    } else { // hard
-        // Hard: larger numbers
-        if (operation.type === 'add') {
-            num1 = Math.floor(Math.random() * 15) + 5;
-            num2 = Math.floor(Math.random() * 15) + 5;
-            answer = num1 + num2;
-        } else if (operation.type === 'subtract') {
-            num1 = Math.floor(Math.random() * 15) + 10;
-            num2 = Math.floor(Math.random() * num1) + 1;
-            answer = num1 - num2;
-        } else {
-            num1 = Math.floor(Math.random() * 8) + 2;
-            num2 = Math.floor(Math.random() * 8) + 2;
-            answer = num1 * num2;
-        }
+        answer = num1 - num2;
+    } else if (operation.type === 'multiply') {
+        num1 = Math.floor(Math.random() * multMax) + 1;
+        num2 = Math.floor(Math.random() * multMax) + 1;
+        answer = num1 * num2;
+    } else if (operation.type === 'divide') {
+        num2 = Math.floor(Math.random() * multMax) + 1;
+        const quotient = Math.floor(Math.random() * multMax) + 1;
+        num1 = num2 * quotient;
+        answer = quotient;
     }
     
     return {
         text: `${num1} ${operation.op} ${num2} = ?`,
         answer: answer,
-        difficulty: difficulty
+        difficulty: difficulty,
+        type: 'number'
+    };
+}
+
+function generateSpellingQuestion(gradeLevel, difficulty) {
+    const wordLists = {
+        'K': ['cat', 'dog', 'hat', 'sun', 'run', 'big', 'red', 'can', 'see', 'the'],
+        '1': ['play', 'jump', 'read', 'help', 'girl', 'blue', 'look', 'went', 'make', 'come'],
+        '2': ['friend', 'school', 'happy', 'pretty', 'could', 'people', 'water', 'called', 'write', 'mother'],
+        '3': ['beautiful', 'decided', 'middle', 'problem', 'answered', 'different', 'science', 'important', 'favorite', 'beginning'],
+        '4': ['appreciate', 'necessary', 'chocolate', 'community', 'particular', 'restaurant', 'similar', 'vacation', 'usually', 'calendar'],
+        '5': ['accommodate', 'embarrass', 'government', 'environment', 'kindergarten', 'necessary', 'privilege', 'recommended', 'separate', 'successful']
+    };
+    
+    const words = wordLists[gradeLevel] || wordLists['1'];
+    const word = words[Math.floor(Math.random() * words.length)];
+    
+    return {
+        text: `Spell: "${word}"`,
+        answer: word.toLowerCase(),
+        difficulty: difficulty,
+        type: 'text'
+    };
+}
+
+function generateVocabularyQuestion(gradeLevel, difficulty) {
+    const vocab = {
+        'K': [
+            { word: 'big', definition: 'large in size', answer: 'big' },
+            { word: 'happy', definition: 'feeling good and joyful', answer: 'happy' },
+            { word: 'fast', definition: 'moving quickly', answer: 'fast' }
+        ],
+        '1': [
+            { word: 'brave', definition: 'showing courage', answer: 'brave' },
+            { word: 'tiny', definition: 'very small', answer: 'tiny' },
+            { word: 'shout', definition: 'to speak very loudly', answer: 'shout' }
+        ],
+        '2': [
+            { word: 'curious', definition: 'wanting to learn or know', answer: 'curious' },
+            { word: 'enormous', definition: 'very very big', answer: 'enormous' },
+            { word: 'discover', definition: 'to find something new', answer: 'discover' }
+        ],
+        '3': [
+            { word: 'ancient', definition: 'very old', answer: 'ancient' },
+            { word: 'journey', definition: 'a long trip', answer: 'journey' },
+            { word: 'brilliant', definition: 'very smart or bright', answer: 'brilliant' }
+        ],
+        '4': [
+            { word: 'magnificent', definition: 'extremely beautiful or impressive', answer: 'magnificent' },
+            { word: 'peculiar', definition: 'strange or unusual', answer: 'peculiar' },
+            { word: 'analyze', definition: 'to examine carefully', answer: 'analyze' }
+        ],
+        '5': [
+            { word: 'perseverance', definition: 'continuing despite difficulty', answer: 'perseverance' },
+            { word: 'compassion', definition: 'caring about others suffering', answer: 'compassion' },
+            { word: 'meticulous', definition: 'very careful and precise', answer: 'meticulous' }
+        ]
+    };
+    
+    const list = vocab[gradeLevel] || vocab['1'];
+    const item = list[Math.floor(Math.random() * list.length)];
+    
+    return {
+        text: `What word means: "${item.definition}"?`,
+        answer: item.answer.toLowerCase(),
+        difficulty: difficulty,
+        type: 'text'
+    };
+}
+
+function generateMusicQuestion(gradeLevel, difficulty) {
+    const questions = {
+        'K': [
+            { text: 'What sound does a drum make?', answer: 'boom' },
+            { text: 'How many beats does a whole note get?', answer: 4 },
+            { text: 'What is the opposite of loud? (soft or quiet)', answer: 'soft' }
+        ],
+        '1': [
+            { text: 'What are the first three notes in the musical alphabet?', answer: 'abc' },
+            { text: 'How many lines are in a music staff?', answer: 5 },
+            { text: 'What symbol tells you to play loud?', answer: 'f' }
+        ],
+        '2': [
+            { text: 'What note gets 2 beats?', answer: 'half note' },
+            { text: 'What are the notes in a C major chord? (c, e, g)', answer: 'c e g' },
+            { text: 'What is tempo?', answer: 'speed' }
+        ],
+        '3': [
+            { text: 'What does treble clef also called?', answer: 'g clef' },
+            { text: 'How many beats in 4/4 time signature?', answer: 4 },
+            { text: 'What is a group of singers called?', answer: 'choir' }
+        ],
+        '4': [
+            { text: 'What interval is from C to G?', answer: 'fifth' },
+            { text: 'What are the sharps in G major? (just the note)', answer: 'f' },
+            { text: 'What does allegro mean?', answer: 'fast' }
+        ],
+        '5': [
+            { text: 'How many semitones in an octave?', answer: 12 },
+            { text: 'What key signature has 3 flats?', answer: 'e flat major' },
+            { text: 'What does legato mean?', answer: 'smooth' }
+        ]
+    };
+    
+    const list = questions[gradeLevel] || questions['1'];
+    const q = list[Math.floor(Math.random() * list.length)];
+    
+    return {
+        text: q.text,
+        answer: typeof q.answer === 'string' ? q.answer.toLowerCase() : q.answer,
+        difficulty: difficulty,
+        type: typeof q.answer === 'number' ? 'number' : 'text'
+    };
+}
+
+function generateReadingQuestion(gradeLevel, difficulty) {
+    const questions = {
+        'K': [
+            { text: 'The cat sat on the mat. Where is the cat?', answer: 'mat' },
+            { text: 'The sun is hot. What is hot?', answer: 'sun' }
+        ],
+        '1': [
+            { text: 'Tim has a red ball. He likes to play. What color is the ball?', answer: 'red' },
+            { text: 'The dog ran fast to catch the ball. What did the dog do?', answer: 'ran' }
+        ],
+        '2': [
+            { text: 'Sarah went to the park with her friend. They played on the swings. Who went to the park?', answer: 'sarah' },
+            { text: 'The little bird built a nest in the tree. It was cozy. What did the bird build?', answer: 'nest' }
+        ],
+        '3': [
+            { text: 'The brave knight rescued the princess from the tall tower. Who rescued the princess?', answer: 'knight' },
+            { text: 'After school, Tom completed his homework before dinner. When did Tom do homework?', answer: 'after school' }
+        ],
+        '4': [
+            { text: 'The ancient ruins were discovered by archaeologists in Egypt. Where were the ruins found?', answer: 'egypt' },
+            { text: 'Photosynthesis is the process plants use to make food. What do plants make?', answer: 'food' }
+        ],
+        '5': [
+            { text: 'The expedition to the Amazon rainforest revealed many undiscovered species. Where was the expedition?', answer: 'amazon' },
+            { text: 'Despite numerous obstacles, she persevered and achieved her goal. What did she do?', answer: 'persevered' }
+        ]
+    };
+    
+    const list = questions[gradeLevel] || questions['1'];
+    const q = list[Math.floor(Math.random() * list.length)];
+    
+    return {
+        text: q.text,
+        answer: q.answer.toLowerCase(),
+        difficulty: difficulty,
+        type: 'text'
+    };
+}
+
+function generateScienceQuestion(gradeLevel, difficulty) {
+    const questions = {
+        'K': [
+            { text: 'What do plants need to grow? (sun, water, or soil)', answer: 'sun' },
+            { text: 'What season comes after winter?', answer: 'spring' }
+        ],
+        '1': [
+            { text: 'What do bees make?', answer: 'honey' },
+            { text: 'What is the center of our solar system?', answer: 'sun' }
+        ],
+        '2': [
+            { text: 'What do caterpillars turn into?', answer: 'butterfly' },
+            { text: 'What planet do we live on?', answer: 'earth' }
+        ],
+        '3': [
+            { text: 'What is H2O commonly called?', answer: 'water' },
+            { text: 'What force pulls objects to the ground?', answer: 'gravity' }
+        ],
+        '4': [
+            { text: 'What gas do plants produce during photosynthesis?', answer: 'oxygen' },
+            { text: 'What is the largest organ in the human body?', answer: 'skin' }
+        ],
+        '5': [
+            { text: 'What is the process of water turning into vapor called?', answer: 'evaporation' },
+            { text: 'What part of the cell contains genetic information?', answer: 'nucleus' }
+        ]
+    };
+    
+    const list = questions[gradeLevel] || questions['1'];
+    const q = list[Math.floor(Math.random() * list.length)];
+    
+    return {
+        text: q.text,
+        answer: q.answer.toLowerCase(),
+        difficulty: difficulty,
+        type: 'text'
     };
 }
 
@@ -125,28 +350,22 @@ function showQuestion(difficulty = 'medium') {
     currentQuestion = generateQuestion(currentDifficulty);
     document.getElementById('questionText').textContent = currentQuestion.text;
     document.getElementById('answerInput').value = '';
+    
+    // Update input type based on question type
+    const inputField = document.getElementById('answerInput');
+    if (currentQuestion.type === 'text') {
+        inputField.type = 'text';
+        inputField.placeholder = 'Type your answer';
+    } else {
+        inputField.type = 'number';
+        inputField.placeholder = 'Your answer';
+    }
+    
     document.getElementById('feedback').textContent = '';
     document.getElementById('questionModal').style.display = 'flex';
     document.getElementById('answerInput').focus();
 }
-function showMessage(title, message, autoReload = false, delay = 2000) {
-    const modal = document.getElementById('questionModal');
-    const modalContent = modal.querySelector('.modal-content');
-    
-    // Hide question elements and show message
-    modalContent.innerHTML = `
-        <h2>${title}</h2>
-        <p style="font-size: 1.4em; margin: 20px 0; color: #333;">${message}</p>
-    `;
-    
-    modal.style.display = 'flex';
-    
-    if (autoReload) {
-        setTimeout(() => {
-            location.reload();
-        }, delay);
-    }
-}
+
 function showMessage(title, message, autoReload = false, delay = 2000) {
     const modal = document.getElementById('questionModal');
     const modalContent = modal.querySelector('.modal-content');
@@ -167,10 +386,20 @@ function showMessage(title, message, autoReload = false, delay = 2000) {
 }
 
 function checkAnswer() {
-    const userAnswer = parseInt(document.getElementById('answerInput').value);
-    const feedback = document.getElementById('feedback');
+    const inputField = document.getElementById('answerInput');
+    let userAnswer;
     
-    if (userAnswer === currentQuestion.answer) {
+    if (currentQuestion.type === 'text') {
+        userAnswer = inputField.value.toLowerCase().trim();
+    } else {
+        userAnswer = parseInt(inputField.value);
+    }
+    
+    const feedback = document.getElementById('feedback');
+    const isCorrect = userAnswer === currentQuestion.answer || 
+                      (typeof currentQuestion.answer === 'string' && userAnswer === currentQuestion.answer.toLowerCase());
+    
+    if (isCorrect) {
         feedback.textContent = '✅ Correct! Great job!';
         feedback.style.color = '#4CAF50';
         gameState.score += 10;
@@ -724,6 +953,11 @@ function togglePause() {
 
 // Title Screen Event Listener
 document.getElementById('startGameBtn').addEventListener('click', () => {
+    // Capture selected settings
+    gameState.gradeLevel = document.getElementById('gradeLevel').value;
+    gameState.subject = document.getElementById('subject').value;
+    
+    // Hide title screen and start game
     document.getElementById('titleScreen').style.display = 'none';
     gameState.isRunning = true;
     gameState.isPaused = false;
