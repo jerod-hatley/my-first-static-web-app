@@ -369,28 +369,28 @@ function generateReadingQuestion(gradeLevel, difficulty) {
 function generateScienceQuestion(gradeLevel, difficulty) {
     const questions = {
         'K': [
-            { text: 'What do plants need to grow? (sun, water, or soil)', answer: 'sun' },
-            { text: 'What season comes after winter?', answer: 'spring' }
+            { text: 'What do plants need to grow?', answer: 'sun', options: ['sun', 'candy', 'toys', 'snow'] },
+            { text: 'What season comes after winter?', answer: 'spring', options: ['spring', 'winter', 'summer', 'fall'] }
         ],
         '1': [
-            { text: 'What do bees make?', answer: 'honey' },
-            { text: 'What is the center of our solar system?', answer: 'sun' }
+            { text: 'What do bees make?', answer: 'honey', options: ['honey', 'milk', 'bread', 'cheese'] },
+            { text: 'What is the center of our solar system?', answer: 'sun', options: ['sun', 'moon', 'earth', 'mars'] }
         ],
         '2': [
-            { text: 'What do caterpillars turn into?', answer: 'butterfly' },
-            { text: 'What planet do we live on?', answer: 'earth' }
+            { text: 'What do caterpillars turn into?', answer: 'butterfly', options: ['butterfly', 'bird', 'frog', 'bee'] },
+            { text: 'What planet do we live on?', answer: 'earth', options: ['earth', 'mars', 'venus', 'jupiter'] }
         ],
         '3': [
-            { text: 'What is H2O commonly called?', answer: 'water' },
-            { text: 'What force pulls objects to the ground?', answer: 'gravity' }
+            { text: 'What is H2O commonly called?', answer: 'water', options: ['water', 'air', 'fire', 'soil'] },
+            { text: 'What force pulls objects to the ground?', answer: 'gravity', options: ['gravity', 'magnetism', 'friction', 'wind'] }
         ],
         '4': [
-            { text: 'What gas do plants produce during photosynthesis?', answer: 'oxygen' },
-            { text: 'What is the largest organ in the human body?', answer: 'skin' }
+            { text: 'What gas do plants produce during photosynthesis?', answer: 'oxygen', options: ['oxygen', 'carbon dioxide', 'nitrogen', 'hydrogen'] },
+            { text: 'What is the largest organ in the human body?', answer: 'skin', options: ['skin', 'heart', 'brain', 'liver'] }
         ],
         '5': [
-            { text: 'What is the process of water turning into vapor called?', answer: 'evaporation' },
-            { text: 'What part of the cell contains genetic information?', answer: 'nucleus' }
+            { text: 'What is the process of water turning into vapor called?', answer: 'evaporation', options: ['evaporation', 'condensation', 'precipitation', 'freezing'] },
+            { text: 'What part of the cell contains genetic information?', answer: 'nucleus', options: ['nucleus', 'membrane', 'cytoplasm', 'mitochondria'] }
         ]
     };
     
@@ -420,7 +420,8 @@ function generateScienceQuestion(gradeLevel, difficulty) {
         text: q.text,
         answer: q.answer.toLowerCase(),
         difficulty: difficulty,
-        type: 'text'
+        type: 'multiple-choice',
+        options: q.options
     };
 }
 
