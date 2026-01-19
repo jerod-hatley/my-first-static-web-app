@@ -722,6 +722,13 @@ function togglePause() {
 
 // Button Event Listeners removed - game auto-starts
 
+// Title Screen Event Listener
+document.getElementById('startGameBtn').addEventListener('click', () => {
+    document.getElementById('titleScreen').style.display = 'none';
+    gameState.isRunning = true;
+    gameState.isPaused = false;
+});
+
 // Question Modal Event Listeners
 document.getElementById('submitAnswer').addEventListener('click', checkAnswer);
 document.getElementById('answerInput').addEventListener('keypress', (e) => {
@@ -741,9 +748,9 @@ function drawInitialScreen() {
     drawPlayer();
 }
 
-// Auto-start game immediately
-gameState.isRunning = true;
-gameState.isPaused = false;
+// Game starts paused until title screen is dismissed
+gameState.isRunning = false;
+gameState.isPaused = true;
 createHexGrid();
 updatePlayer();
 renderLoop();
