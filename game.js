@@ -129,6 +129,42 @@ function showQuestion(difficulty = 'medium') {
     document.getElementById('questionModal').style.display = 'flex';
     document.getElementById('answerInput').focus();
 }
+function showMessage(title, message, autoReload = false, delay = 2000) {
+    const modal = document.getElementById('questionModal');
+    const modalContent = modal.querySelector('.modal-content');
+    
+    // Hide question elements and show message
+    modalContent.innerHTML = `
+        <h2>${title}</h2>
+        <p style="font-size: 1.4em; margin: 20px 0; color: #333;">${message}</p>
+    `;
+    
+    modal.style.display = 'flex';
+    
+    if (autoReload) {
+        setTimeout(() => {
+            location.reload();
+        }, delay);
+    }
+}
+function showMessage(title, message, autoReload = false, delay = 2000) {
+    const modal = document.getElementById('questionModal');
+    const modalContent = modal.querySelector('.modal-content');
+    
+    // Hide question elements and show message
+    modalContent.innerHTML = `
+        <h2>${title}</h2>
+        <p style="font-size: 1.4em; margin: 20px 0; color: #333;">${message}</p>
+    `;
+    
+    modal.style.display = 'flex';
+    
+    if (autoReload) {
+        setTimeout(() => {
+            location.reload();
+        }, delay);
+    }
+}
 
 function checkAnswer() {
     const userAnswer = parseInt(document.getElementById('answerInput').value);
@@ -269,13 +305,23 @@ function createHexGrid() {
     
     for (const barrierRow of barrierRows) {
         for (let col = 0; col < gridCols; col++) {
-            // Create gaps in barriers (2-3 gaps per row)
-            const isGap = (col === 2 || col === 6 || col === 9);
-            
-            if (!isGap) {
-                // Mix of lava and questions in barriers
-                const isLava = Math.random() < 0.3;
-                hexGrid[barrierRow][col].type = isLava ? 'lava' : 'question';
+            // Row 10 is completely blocked - must go through question tiles
+            // Other rows have gaps with lava/questions
+            if (barrierRow === 10) {
+                // No gaps - all question tiles to force answering
+                hexGrid[barrierRow][col].type = 'question';
+            } else {
+                // Create gaps in other barriers
+                const isGap = (col === 2 || col === 6 || col === 9);
+                
+                if (isGap) {
+                    // Gaps filled with question tiles instead of empty
+                    hexGrid[barrierRow][col].type = 'question';
+                } else {
+                    // Mix of lava and questions in barriers
+                    const isLava = Math.random() < 0.3;
+                    hexGrid[barrierRow][col].type = isLava ? 'lava' : 'question';
+                }
             }
         }
     }
@@ -453,14 +499,7 @@ function updatePlayer() {
             player.isMoving = false;
                         // Check if player reached the princess
             if (player.gridX === princess.gridX && player.gridY === princess.gridY) {
-                alert('🎉 Victory! Mathew saved the princess!');
-                location.reload();
-                return;
-            }
-                        // Check if player reached the princess
-            if (player.gridX === princess.gridX && player.gridY === princess.gridY) {
-                alert('🎉 Victory! Mathew saved the princess!');
-                location.reload();
+                showMessage('🎉 Victory!', 'Mathew saved the princess!', true, 3000);
                 return;
             }
             
@@ -470,10 +509,9 @@ function updatePlayer() {
                 updateUI();
                 
                 if (gameState.lives <= 0) {
-                    alert('Game Over! Mathew fell into lava!');
-                    location.reload();
+                    showMessage('💀 Game Over!', 'Mathew fell into lava!', true, 2000);
                 } else {
-                    alert('Ouch! Mathew fell into lava! Lives remaining: ' + gameState.lives);
+                    showMessage('🔥 Ouch!', `Mathew fell into lava!<br>Lives remaining: ${gameState.lives}`, true, 1500);
                     // Respawn at random position
                     let newCol, newRow;
                     do {
