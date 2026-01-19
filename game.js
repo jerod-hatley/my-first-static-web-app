@@ -682,9 +682,7 @@ function togglePause() {
     }
 }
 
-// Button Event Listeners
-document.getElementById('startBtn').addEventListener('click', startGame);
-document.getElementById('pauseBtn').addEventListener('click', togglePause);
+// Button Event Listeners removed - game auto-starts
 
 // Question Modal Event Listeners
 document.getElementById('submitAnswer').addEventListener('click', checkAnswer);
@@ -703,23 +701,11 @@ function drawInitialScreen() {
     drawPrincess();
     updatePlayer();
     drawPlayer();
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    const boxWidth = Math.min(400, canvas.width - 40);
-    const boxHeight = 120;
-    ctx.fillRect(canvas.width / 2 - boxWidth/2, canvas.height / 2 - boxHeight/2, boxWidth, boxHeight);
-    
-    ctx.fillStyle = '#FFF';
-    ctx.font = `${Math.min(32, canvas.width / 15)}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.fillText('Click or tap to move!', canvas.width / 2, canvas.height / 2);
-    
-    ctx.font = `${Math.min(16, canvas.width / 25)}px Arial`;
-    ctx.fillText('Click on any hex tile to move there', canvas.width / 2, canvas.height / 2 + 30);
-    ctx.fillText('Avoid the lava!', canvas.width / 2, canvas.height / 2 + 50);
 }
 
-// Start render loop immediately
+// Auto-start game immediately
+gameState.isRunning = true;
+gameState.isPaused = false;
 createHexGrid();
 updatePlayer();
 renderLoop();
