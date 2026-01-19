@@ -20,11 +20,21 @@ window.addEventListener('resize', () => {
 const mathewImage = new Image();
 mathewImage.src = 'images/Mathew.png';
 
+const princessImage = new Image();
+princessImage.src = 'images/Princess.png';
+
 let imageLoaded = false;
+let princessImageLoaded = false;
 
 mathewImage.onload = () => {
     console.log('Mathew image loaded successfully');
     imageLoaded = true;
+    drawInitialScreen();
+};
+
+princessImage.onload = () => {
+    console.log('Princess image loaded successfully');
+    princessImageLoaded = true;
     drawInitialScreen();
 };
 
@@ -76,12 +86,12 @@ function calculateHexSize() {
     
     // Center the grid perfectly then shift down and right
     gridOffsetX = (canvas.width - gridWidth) / 2 + 20;
-    gridOffsetY = ((canvas.height - co5trolsHeight) - gridHeight) / 2 + 40;
+    gridOffsetY = ((canvas.height - controlsHeight) - gridHeight) / 2 + 40;
 }
 
-// Random starting position
+// Random starting position - limit to southern 1/4 of grid
 const startCol = Math.floor(Math.random() * gridCols);
-const startRow = Math.floor(Math.random() * gridRows);
+const startRow = Math.floor(gridRows * 0.75 + Math.random() * (gridRows * 0.25));
 
 // Player Object (Mathew)
 const player = {
@@ -96,6 +106,15 @@ const player = {
     targetGridX: startCol,
     targetGridY: startRow,
     isMoving: false
+};
+
+// Princess Object - in northern 1/4 of grid
+const princess = {
+    gridX: Math.floor(Math.random() * gridCols),
+    gridY: Math.floor(Math.random() * (gridRows * 0.25)),
+    pixelX: 0,
+    pixelY: 0,
+    size: 40
 };
 
 // Hexagonal Grid
@@ -272,6 +291,18 @@ function updatePlayer() {
             player.pixelX = targetPos.x;
             player.pixelY = targetPos.y;
             player.isMoving = false;
+                        // Check if player reached the princess
+            if (player.gridX === princess.gridX && player.gridY === princess.gridY) {
+                alert('🎉 Victory! Mathew saved the princess!');
+                location.reload();
+                return;
+            }
+                        // Check if player reached the princess
+            if (player.gridX === princess.gridX && player.gridY === princess.gridY) {
+                alert('🎉 Victory! Mathew saved the princess!');
+                location.reload();
+                return;
+            }
             
             // Check if player landed on lava
             if (hexGrid[player.gridY][player.gridX].type === 'lava') {
@@ -379,6 +410,30 @@ function drawPlayer() {
     ctx.restore();
 }
 
+// Draw Princess
+function drawPrincess() {
+    const pos = hexToPixel(princess.gridX, princess.gridY);
+    princess.pixelX = pos.x;
+    princess.pixelY = pos.y;
+    
+    ctx.save();
+    
+    if (princessImage.complete && princessImage.naturalWidth > 0) {
+        ctx.drawImage(princessImage, princess.pixelX - princess.size / 2, princess.pixelY - princess.size / 2, princess.size, princess.size);
+    } else {
+        // Fallback: Draw princess as a pink circle with crown
+        ctx.fillStyle = '#FFB6C1';
+        ctx.beginPath();
+        ctx.arc(princess.pixelX, princess.pixelY, princess.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#FF69B4';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    }
+    
+    ctx.restore();
+}
+
 // Draw Background
 function drawBackground() {
     ctx.fillStyle = '#87CEEB';
@@ -392,6 +447,7 @@ function gameLoop() {
     drawBackground();
     updatePlayer();
     drawHexGrid();
+    drawPrincess();
     drawPlayer();
     
     requestAnimationFrame(gameLoop);
@@ -402,6 +458,7 @@ function renderLoop() {
     drawBackground();
     updatePlayer();
     drawHexGrid();
+    drawPrincess();
     drawPlayer();
     
     requestAnimationFrame(renderLoop);
@@ -458,6 +515,7 @@ function drawInitialScreen() {
     drawBackground();
     createHexGrid();
     drawHexGrid();
+    drawPrincess();
     updatePlayer();
     drawPlayer();
 
