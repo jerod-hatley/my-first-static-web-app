@@ -114,7 +114,7 @@ const princess = {
     gridY: Math.floor(Math.random() * (gridRows * 0.25)),
     pixelX: 0,
     pixelY: 0,
-    size: 40
+    size: 30
 };
 
 // Hexagonal Grid
