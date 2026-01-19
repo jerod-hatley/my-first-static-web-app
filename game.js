@@ -179,34 +179,34 @@ function generateSpellingQuestion(gradeLevel, difficulty) {
 function generateVocabularyQuestion(gradeLevel, difficulty) {
     const vocab = {
         'K': [
-            { word: 'big', definition: 'large in size', answer: 'big' },
-            { word: 'happy', definition: 'feeling good and joyful', answer: 'happy' },
-            { word: 'fast', definition: 'moving quickly', answer: 'fast' }
+            { word: 'big', definition: 'large in size', answer: 'big', options: ['big', 'small', 'fast', 'cold'] },
+            { word: 'happy', definition: 'feeling good and joyful', answer: 'happy', options: ['happy', 'sad', 'angry', 'tired'] },
+            { word: 'fast', definition: 'moving quickly', answer: 'fast', options: ['fast', 'slow', 'big', 'small'] }
         ],
         '1': [
-            { word: 'brave', definition: 'showing courage', answer: 'brave' },
-            { word: 'tiny', definition: 'very small', answer: 'tiny' },
-            { word: 'shout', definition: 'to speak very loudly', answer: 'shout' }
+            { word: 'brave', definition: 'showing courage', answer: 'brave', options: ['brave', 'scared', 'sleepy', 'hungry'] },
+            { word: 'tiny', definition: 'very small', answer: 'tiny', options: ['tiny', 'huge', 'loud', 'quiet'] },
+            { word: 'shout', definition: 'to speak very loudly', answer: 'shout', options: ['shout', 'whisper', 'sleep', 'walk'] }
         ],
         '2': [
-            { word: 'curious', definition: 'wanting to learn or know', answer: 'curious' },
-            { word: 'enormous', definition: 'very very big', answer: 'enormous' },
-            { word: 'discover', definition: 'to find something new', answer: 'discover' }
+            { word: 'curious', definition: 'wanting to learn or know', answer: 'curious', options: ['curious', 'bored', 'sleepy', 'angry'] },
+            { word: 'enormous', definition: 'very very big', answer: 'enormous', options: ['enormous', 'tiny', 'quiet', 'dark'] },
+            { word: 'discover', definition: 'to find something new', answer: 'discover', options: ['discover', 'hide', 'forget', 'lose'] }
         ],
         '3': [
-            { word: 'ancient', definition: 'very old', answer: 'ancient' },
-            { word: 'journey', definition: 'a long trip', answer: 'journey' },
-            { word: 'brilliant', definition: 'very smart or bright', answer: 'brilliant' }
+            { word: 'ancient', definition: 'very old', answer: 'ancient', options: ['ancient', 'modern', 'young', 'new'] },
+            { word: 'journey', definition: 'a long trip', answer: 'journey', options: ['journey', 'home', 'stop', 'stay'] },
+            { word: 'brilliant', definition: 'very smart or bright', answer: 'brilliant', options: ['brilliant', 'dull', 'dark', 'slow'] }
         ],
         '4': [
-            { word: 'magnificent', definition: 'extremely beautiful or impressive', answer: 'magnificent' },
-            { word: 'peculiar', definition: 'strange or unusual', answer: 'peculiar' },
-            { word: 'analyze', definition: 'to examine carefully', answer: 'analyze' }
+            { word: 'magnificent', definition: 'extremely beautiful or impressive', answer: 'magnificent', options: ['magnificent', 'ordinary', 'plain', 'ugly'] },
+            { word: 'peculiar', definition: 'strange or unusual', answer: 'peculiar', options: ['peculiar', 'normal', 'common', 'typical'] },
+            { word: 'analyze', definition: 'to examine carefully', answer: 'analyze', options: ['analyze', 'ignore', 'guess', 'avoid'] }
         ],
         '5': [
-            { word: 'perseverance', definition: 'continuing despite difficulty', answer: 'perseverance' },
-            { word: 'compassion', definition: 'caring about others suffering', answer: 'compassion' },
-            { word: 'meticulous', definition: 'very careful and precise', answer: 'meticulous' }
+            { word: 'perseverance', definition: 'continuing despite difficulty', answer: 'perseverance', options: ['perseverance', 'quitting', 'laziness', 'avoidance'] },
+            { word: 'compassion', definition: 'caring about others suffering', answer: 'compassion', options: ['compassion', 'cruelty', 'selfishness', 'indifference'] },
+            { word: 'meticulous', definition: 'very careful and precise', answer: 'meticulous', options: ['meticulous', 'careless', 'sloppy', 'hasty'] }
         ]
     };
     
@@ -217,7 +217,8 @@ function generateVocabularyQuestion(gradeLevel, difficulty) {
         text: `What word means: "${item.definition}"?`,
         answer: item.answer.toLowerCase(),
         difficulty: difficulty,
-        type: 'text'
+        type: 'multiple-choice',
+        options: item.options
     };
 }
 
@@ -364,21 +365,89 @@ function showQuestion(difficulty = 'medium') {
     document.getElementById('questionTitle').textContent = subjectTitles[gameState.subject] || 'Question!';
     
     document.getElementById('questionText').textContent = currentQuestion.text;
-    document.getElementById('answerInput').value = '';
     
-    // Update input type based on question type
     const inputField = document.getElementById('answerInput');
-    if (currentQuestion.type === 'text') {
-        inputField.type = 'text';
-        inputField.placeholder = 'Type your answer';
+    const submitButton = document.getElementById('submitAnswer');
+    const multipleChoiceContainer = document.getElementById('multipleChoiceContainer');
+    
+    // Handle multiple choice questions
+    if (currentQuestion.type === 'multiple-choice') {
+        inputField.style.display = 'none';
+        submitButton.style.display = 'none';
+        multipleChoiceContainer.style.display = 'block';
+        multipleChoiceContainer.innerHTML = '';
+        
+        currentQuestion.options.forEach(option => {
+            const button = document.createElement('button');
+            button.className = 'choice-button';
+            button.textContent = option;
+            button.onclick = () => selectChoice(option);
+            multipleChoiceContainer.appendChild(button);
+        });
     } else {
-        inputField.type = 'number';
-        inputField.placeholder = 'Your answer';
+        // Text or number input
+        inputField.style.display = 'block';
+        submitButton.style.display = 'block';
+        multipleChoiceContainer.style.display = 'none';
+        inputField.value = '';
+        
+        if (currentQuestion.type === 'text') {
+            inputField.type = 'text';
+            inputField.placeholder = 'Type your answer';
+        } else {
+            inputField.type = 'number';
+            inputField.placeholder = 'Your answer';
+        }
+        
+        inputField.focus();
     }
     
     document.getElementById('feedback').textContent = '';
     document.getElementById('questionModal').style.display = 'flex';
-    document.getElementById('answerInput').focus();
+}
+
+function selectChoice(choice) {
+    const isCorrect = choice.toLowerCase() === currentQuestion.answer;
+    const feedback = document.getElementById('feedback');
+    
+    if (isCorrect) {
+        feedback.textContent = '✅ Correct! Great job!';
+        feedback.style.color = '#4CAF50';
+        gameState.score += 10;
+        updateUI();
+        
+        // Mark this tile as answered
+        questionTileAnswered.add(`${player.gridX},${player.gridY}`);
+        
+        setTimeout(() => {
+            document.getElementById('questionModal').style.display = 'none';
+            currentQuestion = null;
+        }, 1000);
+    } else {
+        wrongAnswerCount++;
+        
+        // Make question easier after wrong answer
+        if (wrongAnswerCount >= 1) {
+            if (currentDifficulty === 'hard') {
+                currentDifficulty = 'medium';
+                feedback.textContent = `❌ Let's try an easier one!`;
+            } else if (currentDifficulty === 'medium') {
+                currentDifficulty = 'easy';
+                feedback.textContent = `❌ Here's an easier question!`;
+            } else {
+                feedback.textContent = `❌ Try again!`;
+            }
+            
+            feedback.style.color = '#f44336';
+            
+            setTimeout(() => {
+                showQuestion(currentDifficulty);
+            }, 1500);
+        } else {
+            feedback.textContent = `❌ Try again!`;
+            feedback.style.color = '#f44336';
+        }
+    }
 }
 
 function showMessage(title, message, autoReload = false, delay = 2000) {
@@ -496,9 +565,9 @@ function calculateHexSize() {
     gridOffsetY = ((canvas.height - controlsHeight) - gridHeight) / 2 + 40;
 }
 
-// Random starting position - limit to southern 1/4 of grid
-const startCol = Math.floor(Math.random() * gridCols);
-const startRow = Math.floor(gridRows * 0.75 + Math.random() * (gridRows * 0.25));
+// Starting position - lower left corner
+const startCol = 0;
+const startRow = gridRows - 1;
 
 // Player Object (Mathew)
 const player = {

@@ -134,6 +134,34 @@ button:active {
     margin-top: 10px;
 }
 
+.multiple-choice-container {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.choice-button {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1em;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: 2px solid #764ba2;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.choice-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.choice-button:active {
+    transform: scale(0.98);
+}
+
 #feedback {
     font-size: 1.1em;
     font-weight: bold;
