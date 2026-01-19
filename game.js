@@ -60,6 +60,7 @@ let currentQuestion = null;
 let questionTileAnswered = new Set(); // Track which question tiles have been answered
 let currentDifficulty = 'medium'; // Track difficulty: easy, medium, hard
 let wrongAnswerCount = 0;
+let usedQuestions = {}; // Track which questions have been asked per subject/grade
 
 function generateQuestion(difficulty = 'medium') {
     const gradeLevel = gameState.gradeLevel;
@@ -211,7 +212,28 @@ function generateVocabularyQuestion(gradeLevel, difficulty) {
     };
     
     const list = vocab[gradeLevel] || vocab['1'];
-    const item = list[Math.floor(Math.random() * list.length)];
+    const key = `vocabulary-${gradeLevel}`;
+    
+    if (!usedQuestions[key]) {
+        usedQuestions[key] = new Set();
+    }
+    
+    // If all questions used, reset
+    if (usedQuestions[key].size >= list.length) {
+        usedQuestions[key].clear();
+    }
+    
+    // Find unused question
+    let availableIndices = [];
+    for (let i = 0; i < list.length; i++) {
+        if (!usedQuestions[key].has(i)) {
+            availableIndices.push(i);
+        }
+    }
+    
+    const selectedIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+    usedQuestions[key].add(selectedIndex);
+    const item = list[selectedIndex];
     
     return {
         text: `What word means: "${item.definition}"?`,
@@ -257,7 +279,26 @@ function generateMusicQuestion(gradeLevel, difficulty) {
     };
     
     const list = questions[gradeLevel] || questions['1'];
-    const q = list[Math.floor(Math.random() * list.length)];
+    const key = `music-${gradeLevel}`;
+    
+    if (!usedQuestions[key]) {
+        usedQuestions[key] = new Set();
+    }
+    
+    if (usedQuestions[key].size >= list.length) {
+        usedQuestions[key].clear();
+    }
+    
+    let availableIndices = [];
+    for (let i = 0; i < list.length; i++) {
+        if (!usedQuestions[key].has(i)) {
+            availableIndices.push(i);
+        }
+    }
+    
+    const selectedIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+    usedQuestions[key].add(selectedIndex);
+    const q = list[selectedIndex];
     
     return {
         text: q.text,
@@ -296,7 +337,26 @@ function generateReadingQuestion(gradeLevel, difficulty) {
     };
     
     const list = questions[gradeLevel] || questions['1'];
-    const q = list[Math.floor(Math.random() * list.length)];
+    const key = `reading-${gradeLevel}`;
+    
+    if (!usedQuestions[key]) {
+        usedQuestions[key] = new Set();
+    }
+    
+    if (usedQuestions[key].size >= list.length) {
+        usedQuestions[key].clear();
+    }
+    
+    let availableIndices = [];
+    for (let i = 0; i < list.length; i++) {
+        if (!usedQuestions[key].has(i)) {
+            availableIndices.push(i);
+        }
+    }
+    
+    const selectedIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+    usedQuestions[key].add(selectedIndex);
+    const q = list[selectedIndex];
     
     return {
         text: q.text,
@@ -335,7 +395,26 @@ function generateScienceQuestion(gradeLevel, difficulty) {
     };
     
     const list = questions[gradeLevel] || questions['1'];
-    const q = list[Math.floor(Math.random() * list.length)];
+    const key = `science-${gradeLevel}`;
+    
+    if (!usedQuestions[key]) {
+        usedQuestions[key] = new Set();
+    }
+    
+    if (usedQuestions[key].size >= list.length) {
+        usedQuestions[key].clear();
+    }
+    
+    let availableIndices = [];
+    for (let i = 0; i < list.length; i++) {
+        if (!usedQuestions[key].has(i)) {
+            availableIndices.push(i);
+        }
+    }
+    
+    const selectedIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+    usedQuestions[key].add(selectedIndex);
+    const q = list[selectedIndex];
     
     return {
         text: q.text,
