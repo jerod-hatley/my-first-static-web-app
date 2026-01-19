@@ -247,34 +247,34 @@ function generateVocabularyQuestion(gradeLevel, difficulty) {
 function generateMusicQuestion(gradeLevel, difficulty) {
     const questions = {
         'K': [
-            { text: 'What sound does a drum make?', answer: 'boom' },
-            { text: 'How many beats does a whole note get?', answer: 4 },
-            { text: 'What is the opposite of loud? (soft or quiet)', answer: 'soft' }
+            { text: 'What sound does a drum make?', answer: 'boom', options: ['boom', 'ding', 'meow', 'beep'] },
+            { text: 'How many beats does a whole note get?', answer: '4', options: ['4', '2', '1', '3'] },
+            { text: 'What is the opposite of loud?', answer: 'soft', options: ['soft', 'fast', 'slow', 'high'] }
         ],
         '1': [
-            { text: 'What are the first three notes in the musical alphabet?', answer: 'abc' },
-            { text: 'How many lines are in a music staff?', answer: 5 },
-            { text: 'What symbol tells you to play loud?', answer: 'f' }
+            { text: 'What are the first three notes in the musical alphabet?', answer: 'abc', options: ['abc', 'def', 'xyz', 'ghi'] },
+            { text: 'How many lines are in a music staff?', answer: '5', options: ['5', '4', '6', '3'] },
+            { text: 'What symbol tells you to play loud?', answer: 'f', options: ['f', 'p', 'g', 'c'] }
         ],
         '2': [
-            { text: 'What note gets 2 beats?', answer: 'half note' },
-            { text: 'What are the notes in a C major chord? (c, e, g)', answer: 'c e g' },
-            { text: 'What is tempo?', answer: 'speed' }
+            { text: 'What note gets 2 beats?', answer: 'half note', options: ['half note', 'whole note', 'quarter note', 'eighth note'] },
+            { text: 'What are the notes in a C major chord?', answer: 'c e g', options: ['c e g', 'c d e', 'a b c', 'd f a'] },
+            { text: 'What is tempo?', answer: 'speed', options: ['speed', 'volume', 'pitch', 'tone'] }
         ],
         '3': [
-            { text: 'What does treble clef also called?', answer: 'g clef' },
-            { text: 'How many beats in 4/4 time signature?', answer: 4 },
-            { text: 'What is a group of singers called?', answer: 'choir' }
+            { text: 'What is treble clef also called?', answer: 'g clef', options: ['g clef', 'f clef', 'c clef', 'a clef'] },
+            { text: 'How many beats in 4/4 time signature?', answer: '4', options: ['4', '3', '2', '6'] },
+            { text: 'What is a group of singers called?', answer: 'choir', options: ['choir', 'band', 'orchestra', 'quartet'] }
         ],
         '4': [
-            { text: 'What interval is from C to G?', answer: 'fifth' },
-            { text: 'What are the sharps in G major? (just the note)', answer: 'f' },
-            { text: 'What does allegro mean?', answer: 'fast' }
+            { text: 'What interval is from C to G?', answer: 'fifth', options: ['fifth', 'third', 'fourth', 'sixth'] },
+            { text: 'What are the sharps in G major?', answer: 'f', options: ['f', 'c', 'g', 'b'] },
+            { text: 'What does allegro mean?', answer: 'fast', options: ['fast', 'slow', 'loud', 'soft'] }
         ],
         '5': [
-            { text: 'How many semitones in an octave?', answer: 12 },
-            { text: 'What key signature has 3 flats?', answer: 'e flat major' },
-            { text: 'What does legato mean?', answer: 'smooth' }
+            { text: 'How many semitones in an octave?', answer: '12', options: ['12', '10', '8', '7'] },
+            { text: 'What key signature has 3 flats?', answer: 'e flat major', options: ['e flat major', 'c major', 'f major', 'g major'] },
+            { text: 'What does legato mean?', answer: 'smooth', options: ['smooth', 'choppy', 'loud', 'fast'] }
         ]
     };
     
@@ -302,37 +302,38 @@ function generateMusicQuestion(gradeLevel, difficulty) {
     
     return {
         text: q.text,
-        answer: typeof q.answer === 'string' ? q.answer.toLowerCase() : q.answer,
+        answer: q.answer.toLowerCase(),
         difficulty: difficulty,
-        type: typeof q.answer === 'number' ? 'number' : 'text'
+        type: 'multiple-choice',
+        options: q.options
     };
 }
 
 function generateReadingQuestion(gradeLevel, difficulty) {
     const questions = {
         'K': [
-            { text: 'The cat sat on the mat. Where is the cat?', answer: 'mat' },
-            { text: 'The sun is hot. What is hot?', answer: 'sun' }
+            { text: 'The cat sat on the mat. Where is the cat?', answer: 'mat', options: ['mat', 'hat', 'bat', 'rat'] },
+            { text: 'The sun is hot. What is hot?', answer: 'sun', options: ['sun', 'moon', 'star', 'cloud'] }
         ],
         '1': [
-            { text: 'Tim has a red ball. He likes to play. What color is the ball?', answer: 'red' },
-            { text: 'The dog ran fast to catch the ball. What did the dog do?', answer: 'ran' }
+            { text: 'Tim has a red ball. He likes to play. What color is the ball?', answer: 'red', options: ['red', 'blue', 'green', 'yellow'] },
+            { text: 'The dog ran fast to catch the ball. What did the dog do?', answer: 'ran', options: ['ran', 'walked', 'jumped', 'sat'] }
         ],
         '2': [
-            { text: 'Sarah went to the park with her friend. They played on the swings. Who went to the park?', answer: 'sarah' },
-            { text: 'The little bird built a nest in the tree. It was cozy. What did the bird build?', answer: 'nest' }
+            { text: 'Sarah went to the park with her friend. They played on the swings. Who went to the park?', answer: 'sarah', options: ['sarah', 'john', 'mary', 'bob'] },
+            { text: 'The little bird built a nest in the tree. It was cozy. What did the bird build?', answer: 'nest', options: ['nest', 'house', 'cave', 'hole'] }
         ],
         '3': [
-            { text: 'The brave knight rescued the princess from the tall tower. Who rescued the princess?', answer: 'knight' },
-            { text: 'After school, Tom completed his homework before dinner. When did Tom do homework?', answer: 'after school' }
+            { text: 'The brave knight rescued the princess from the tall tower. Who rescued the princess?', answer: 'knight', options: ['knight', 'dragon', 'king', 'wizard'] },
+            { text: 'After school, Tom completed his homework before dinner. When did Tom do homework?', answer: 'after school', options: ['after school', 'at night', 'in the morning', 'during lunch'] }
         ],
         '4': [
-            { text: 'The ancient ruins were discovered by archaeologists in Egypt. Where were the ruins found?', answer: 'egypt' },
-            { text: 'Photosynthesis is the process plants use to make food. What do plants make?', answer: 'food' }
+            { text: 'The ancient ruins were discovered by archaeologists in Egypt. Where were the ruins found?', answer: 'egypt', options: ['egypt', 'china', 'france', 'mexico'] },
+            { text: 'Photosynthesis is the process plants use to make food. What do plants make?', answer: 'food', options: ['food', 'water', 'air', 'soil'] }
         ],
         '5': [
-            { text: 'The expedition to the Amazon rainforest revealed many undiscovered species. Where was the expedition?', answer: 'amazon' },
-            { text: 'Despite numerous obstacles, she persevered and achieved her goal. What did she do?', answer: 'persevered' }
+            { text: 'The expedition to the Amazon rainforest revealed many undiscovered species. Where was the expedition?', answer: 'amazon', options: ['amazon', 'arctic', 'sahara', 'pacific'] },
+            { text: 'Despite numerous obstacles, she persevered and achieved her goal. What did she do?', answer: 'persevered', options: ['persevered', 'quit', 'complained', 'gave up'] }
         ]
     };
     
@@ -362,7 +363,8 @@ function generateReadingQuestion(gradeLevel, difficulty) {
         text: q.text,
         answer: q.answer.toLowerCase(),
         difficulty: difficulty,
-        type: 'text'
+        type: 'multiple-choice',
+        options: q.options
     };
 }
 
@@ -374,7 +376,11 @@ function generateScienceQuestion(gradeLevel, difficulty) {
         ],
         '1': [
             { text: 'What do bees make?', answer: 'honey', options: ['honey', 'milk', 'bread', 'cheese'] },
-            { text: 'What is the center of our solar system?', answer: 'sun', options: ['sun', 'moon', 'earth', 'mars'] }
+            { text: 'What is the center of our solar system?', answer: 'sun', options: ['sun', 'moon', 'earth', 'mars'] },
+            { text: 'What do fish use to breathe underwater?', answer: 'gills', options: ['gills', 'lungs', 'nose', 'mouth'] },
+            { text: 'What do we call baby frogs?', answer: 'tadpoles', options: ['tadpoles', 'puppies', 'kittens', 'cubs'] },
+            { text: 'What color are most leaves?', answer: 'green', options: ['green', 'blue', 'red', 'yellow'] },
+            { text: 'What do birds have that helps them fly?', answer: 'wings', options: ['wings', 'fins', 'paws', 'hooves'] }
         ],
         '2': [
             { text: 'What do caterpillars turn into?', answer: 'butterfly', options: ['butterfly', 'bird', 'frog', 'bee'] },
