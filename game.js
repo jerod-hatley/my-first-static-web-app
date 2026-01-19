@@ -53,6 +53,133 @@ let gameState = {
     level: 1
 };
 
+// Question System
+let currentQuestion = null;
+let questionTileAnswered = new Set(); // Track which question tiles have been answered
+let currentDifficulty = 'medium'; // Track difficulty: easy, medium, hard
+let wrongAnswerCount = 0;
+
+function generateQuestion(difficulty = 'medium') {
+    const operations = [
+        { type: 'add', op: '+' },
+        { type: 'subtract', op: '-' },
+        { type: 'multiply', op: '×' }
+    ];
+    
+    const operation = operations[Math.floor(Math.random() * operations.length)];
+    let num1, num2, answer;
+    
+    if (difficulty === 'easy') {
+        // Easy: small numbers, addition/subtraction only
+        if (operation.type === 'add') {
+            num1 = Math.floor(Math.random() * 5) + 1;
+            num2 = Math.floor(Math.random() * 5) + 1;
+            answer = num1 + num2;
+        } else {
+            num1 = Math.floor(Math.random() * 5) + 3;
+            num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
+            answer = num1 - num2;
+        }
+    } else if (difficulty === 'medium') {
+        // Medium: normal range
+        if (operation.type === 'add') {
+            num1 = Math.floor(Math.random() * 10) + 1;
+            num2 = Math.floor(Math.random() * 10) + 1;
+            answer = num1 + num2;
+        } else if (operation.type === 'subtract') {
+            num1 = Math.floor(Math.random() * 10) + 5;
+            num2 = Math.floor(Math.random() * num1) + 1;
+            answer = num1 - num2;
+        } else {
+            num1 = Math.floor(Math.random() * 5) + 1;
+            num2 = Math.floor(Math.random() * 5) + 1;
+            answer = num1 * num2;
+        }
+    } else { // hard
+        // Hard: larger numbers
+        if (operation.type === 'add') {
+            num1 = Math.floor(Math.random() * 15) + 5;
+            num2 = Math.floor(Math.random() * 15) + 5;
+            answer = num1 + num2;
+        } else if (operation.type === 'subtract') {
+            num1 = Math.floor(Math.random() * 15) + 10;
+            num2 = Math.floor(Math.random() * num1) + 1;
+            answer = num1 - num2;
+        } else {
+            num1 = Math.floor(Math.random() * 8) + 2;
+            num2 = Math.floor(Math.random() * 8) + 2;
+            answer = num1 * num2;
+        }
+    }
+    
+    return {
+        text: `${num1} ${operation.op} ${num2} = ?`,
+        answer: answer,
+        difficulty: difficulty
+    };
+}
+
+function showQuestion(difficulty = 'medium') {
+    currentDifficulty = difficulty;
+    wrongAnswerCount = 0;
+    currentQuestion = generateQuestion(currentDifficulty);
+    document.getElementById('questionText').textContent = currentQuestion.text;
+    document.getElementById('answerInput').value = '';
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('questionModal').style.display = 'flex';
+    document.getElementById('answerInput').focus();
+}
+
+function checkAnswer() {
+    const userAnswer = parseInt(document.getElementById('answerInput').value);
+    const feedback = document.getElementById('feedback');
+    
+    if (userAnswer === currentQuestion.answer) {
+        feedback.textContent = '✅ Correct! Great job!';
+        feedback.style.color = '#4CAF50';
+        gameState.score += 10;
+        updateUI();
+        
+        // Mark this tile as answered
+        questionTileAnswered.add(`${player.gridX},${player.gridY}`);
+        
+        setTimeout(() => {
+            document.getElementById('questionModal').style.display = 'none';
+            currentQuestion = null;
+        }, 1000);
+    } else {
+        wrongAnswerCount++;
+        
+        // Make question easier after wrong answer
+        if (wrongAnswerCount >= 1) {
+            if (currentDifficulty === 'hard') {
+                currentDifficulty = 'medium';
+                feedback.textContent = `❌ Let's try an easier one!`;
+            } else if (currentDifficulty === 'medium') {
+                currentDifficulty = 'easy';
+                feedback.textContent = `❌ Here's an easier question!`;
+            } else {
+                feedback.textContent = `❌ Try again!`;
+            }
+            
+            feedback.style.color = '#f44336';
+            
+            setTimeout(() => {
+                currentQuestion = generateQuestion(currentDifficulty);
+                document.getElementById('questionText').textContent = currentQuestion.text;
+                document.getElementById('answerInput').value = '';
+                document.getElementById('feedback').textContent = '';
+                document.getElementById('answerInput').focus();
+            }, 1500);
+        } else {
+            feedback.textContent = `❌ Not quite. Try again!`;
+            feedback.style.color = '#f44336';
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').focus();
+        }
+    }
+}
+
 // Hexagon Settings (flat-top) - will be calculated based on canvas size
 let hexRadius = 30;
 let hexWidth = Math.sqrt(3) * hexRadius;
@@ -123,27 +250,60 @@ let hexGrid = [];
 // Create hex grid
 function createHexGrid() {
     hexGrid = [];
+    
+    // Initialize all tiles as normal
     for (let row = 0; row < gridRows; row++) {
         hexGrid[row] = [];
         for (let col = 0; col < gridCols; col++) {
-            // Randomly assign lava tiles
-            const isLava = Math.random() < 0.15;
             hexGrid[row][col] = {
                 row: row,
                 col: col,
-                type: isLava ? 'lava' : 'normal',
-                hasCoin: !isLava && Math.random() < 0.1
+                type: 'normal',
+                hasCoin: false
             };
         }
     }
     
+    // Create strategic barriers at specific rows
+    const barrierRows = [5, 10, 15]; // 3 barrier lines
+    
+    for (const barrierRow of barrierRows) {
+        for (let col = 0; col < gridCols; col++) {
+            // Create gaps in barriers (2-3 gaps per row)
+            const isGap = (col === 2 || col === 6 || col === 9);
+            
+            if (!isGap) {
+                // Mix of lava and questions in barriers
+                const isLava = Math.random() < 0.3;
+                hexGrid[barrierRow][col].type = isLava ? 'lava' : 'question';
+            }
+        }
+    }
+    
+    // Add some random obstacles between barriers
+    for (let row = 0; row < gridRows; row++) {
+        if (!barrierRows.includes(row)) {
+            for (let col = 0; col < gridCols; col++) {
+                const isNorthernHalf = row < gridRows * 0.5;
+                const lavaProbability = 0.08;
+                const questionProbability = isNorthernHalf ? 0.15 : 0.08;
+                
+                if (Math.random() < lavaProbability) {
+                    hexGrid[row][col].type = 'lava';
+                } else if (Math.random() < questionProbability) {
+                    hexGrid[row][col].type = 'question';
+                }
+            }
+        }
+    }
+    
     // Ensure player doesn't start on lava
-    if (hexGrid[player.gridY][player.gridX].type === 'lava') {
+    if (hexGrid[player.gridY][player.gridX].type === 'lava' || hexGrid[player.gridY][player.gridX].type === 'question') {
         let newCol, newRow;
         do {
             newCol = Math.floor(Math.random() * gridCols);
             newRow = Math.floor(Math.random() * gridRows);
-        } while (hexGrid[newRow][newCol].type === 'lava');
+        } while (hexGrid[newRow][newCol].type === 'lava' || hexGrid[newRow][newCol].type === 'question');
         
         player.gridX = newCol;
         player.gridY = newRow;
@@ -327,6 +487,20 @@ function updatePlayer() {
                     player.targetGridY = newRow;
                 }
             }
+            
+            // Check if player landed on a question tile
+            const tileKey = `${player.gridX},${player.gridY}`;
+            if (hexGrid[player.gridY][player.gridX].type === 'question' && !questionTileAnswered.has(tileKey)) {
+                // Determine difficulty based on position
+                const rowPosition = player.gridY / gridRows;
+                let difficulty = 'easy';
+                if (rowPosition < 0.33) {
+                    difficulty = 'hard'; // Northern third (near princess)
+                } else if (rowPosition < 0.66) {
+                    difficulty = 'medium'; // Middle third
+                }
+                showQuestion(difficulty);
+            }
         } else {
             // Move towards target
             player.pixelX += (dx / distance) * moveSpeed;
@@ -377,6 +551,9 @@ function drawHexGrid() {
             if (hex.type === 'lava') {
                 fillColor = '#FF5722';
                 strokeColor = '#D84315';
+            } else if (hex.type === 'question') {
+                fillColor = '#FFD700';
+                strokeColor = '#FFA500';
             } else {
                 fillColor = '#7CB342';
                 strokeColor = '#558B2F';
@@ -508,6 +685,14 @@ function togglePause() {
 // Button Event Listeners
 document.getElementById('startBtn').addEventListener('click', startGame);
 document.getElementById('pauseBtn').addEventListener('click', togglePause);
+
+// Question Modal Event Listeners
+document.getElementById('submitAnswer').addEventListener('click', checkAnswer);
+document.getElementById('answerInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        checkAnswer();
+    }
+});
 
 // Initial Draw
 function drawInitialScreen() {
